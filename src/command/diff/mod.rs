@@ -13,6 +13,7 @@ mod sticky_lines;
 mod text_edit;
 pub mod theme;
 mod types;
+pub mod viewed_state;
 mod watcher;
 
 use std::collections::HashSet;
@@ -39,6 +40,7 @@ pub struct DiffOptions {
     pub origin: Option<String>,
     pub wrap: bool,
     pub guide: bool,
+    pub save_viewed: bool,
 }
 
 #[derive(Clone)]

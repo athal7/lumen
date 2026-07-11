@@ -538,6 +538,7 @@ mod tests {
             origin: None,
             wrap: false,
             guide: false,
+            save_viewed: false,
         };
 
         let diffs = load_file_diffs(&options, &backend);
@@ -611,6 +612,7 @@ mod tests {
             origin: None,
             wrap: false,
             guide: false,
+            save_viewed: false,
         };
 
         let diffs = load_file_diffs(&options, &backend);

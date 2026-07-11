@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::path::PathBuf;
 use std::time::SystemTime;
 
 use tree_sitter::{Parser, Tree};
@@ -263,6 +264,10 @@ pub struct AppState {
     pub guide_group_selected: usize,
     /// Selected file index within the currently selected Guide group.
     pub guide_file_selected: usize,
+    /// On-disk path for `--save-viewed` local persistence. `None` means the
+    /// flag wasn't passed, or path resolution failed (e.g. detached HEAD) —
+    /// in either case, nothing is persisted.
+    pub viewed_state_path: Option<PathBuf>,
 }
 
 fn compute_total_line_stats(file_diffs: &[FileDiff]) -> (usize, usize) {
@@ -373,6 +378,7 @@ impl AppState {
             sidebar_mode: SidebarMode::default(),
             guide_group_selected: 0,
             guide_file_selected: 0,
+            viewed_state_path: None,
         }
     }
 

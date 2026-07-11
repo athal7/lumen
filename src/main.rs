@@ -145,6 +145,7 @@ async fn run() -> Result<(), LumenError> {
             origin,
             wrap,
             guide,
+            save_viewed,
         } => {
             let options = command::diff::DiffOptions {
                 reference,
@@ -158,6 +159,7 @@ async fn run() -> Result<(), LumenError> {
                 origin,
                 wrap: wrap || config.wrap.unwrap_or(false),
                 guide: guide || config.guide.unwrap_or(false),
+                save_viewed,
             };
             command::diff::run_diff_ui(options, backend.as_ref(), provider.clone())?;
         }

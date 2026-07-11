@@ -155,6 +155,11 @@ pub enum Commands {
         /// Show an AI-generated review guide in the sidebar (grouped changes)
         #[arg(long)]
         guide: bool,
+
+        /// Persist viewed-file state locally across sessions, keyed by repo+branch
+        /// and content hash (survives quitting `--watch` and rebases)
+        #[arg(long = "save-viewed")]
+        save_viewed: bool,
     },
     /// Interactively configure Lumen (provider, API key)
     Configure,
