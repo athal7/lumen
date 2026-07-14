@@ -35,6 +35,9 @@ pub struct LumenConfig {
 
     #[serde(default)]
     pub guide: Option<bool>,
+
+    #[serde(default)]
+    pub save_annotations: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -134,6 +137,7 @@ impl LumenConfig {
             theme: config.theme,
             wrap: config.wrap,
             guide: config.guide,
+            save_annotations: config.save_annotations,
         })
     }
 
@@ -161,6 +165,7 @@ impl Default for LumenConfig {
             theme: None,
             wrap: None,
             guide: None,
+            save_annotations: None,
         }
     }
 }

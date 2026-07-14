@@ -105,6 +105,8 @@ pub struct Annotation {
     pub target: AnnotationTarget,
     pub content: String,
     pub created_at: SystemTime,
+    pub anchor: Option<String>,
+    pub stale: bool,
 }
 
 impl Annotation {
@@ -879,6 +881,11 @@ impl AppState {
                 viewed_filenames.remove(filename);
                 self.viewed_hunks.remove(filename);
             }
+            for ann in self.annotations.iter_mut() {
+                if changed.contains(&ann.filename) {
+                    ann.stale = true;
+                }
+            }
         }
 
         self.file_diffs = file_diffs;
@@ -985,6 +992,7 @@ impl AppState {
         target: AnnotationTarget,
         content: String,
         created_at: SystemTime,
+        anchor: Option<String>,
     ) -> u64 {
         let id = self.annotation_next_id;
         self.annotation_next_id += 1;
@@ -994,8 +1002,23 @@ impl AppState {
             target,
             content,
             created_at,
+            anchor,
+            stale: false,
         });
         id
+    }
+
+    /// Get the next annotation id that will be assigned
+    pub fn annotation_next_id(&self) -> u64 {
+        self.annotation_next_id
+    }
+
+    /// Raise the next annotation id counter to at least `floor`, so ids
+    /// restored from disk never collide with newly created ones.
+    pub fn set_annotation_next_id_floor(&mut self, floor: u64) {
+        if floor > self.annotation_next_id {
+            self.annotation_next_id = floor;
+        }
     }
 
     /// Update an existing annotation's content
