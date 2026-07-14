@@ -568,6 +568,8 @@ fn run_app_internal(
     maybe_trigger_group_generation(&mut state, &options, &req_tx);
 
     'main: loop {
+        state.expire_status_message();
+
         if let Some(ref rx) = watch_rx {
             match rx.try_recv() {
                 Ok(event) => {
@@ -722,6 +724,7 @@ fn run_app_internal(
                     state.guide_group_selected,
                     state.guide_file_selected,
                     guide_status.clone(),
+                    state.status_message.as_ref().map(|(msg, _)| msg.as_str()),
                 );
                 row_offset.set(offset);
                 *rects_cell.borrow_mut() = rects;
@@ -2060,7 +2063,6 @@ fn run_app_internal(
                             }
                         }
                         KeyCode::Char('a') => {
-                            // Nothing to show without --guide: leave the sidebar alone.
                             if options.guide {
                                 state.sidebar_mode = match state.sidebar_mode {
                                     SidebarMode::Directory => SidebarMode::Guide,
@@ -2072,6 +2074,10 @@ fn run_app_internal(
                                     state.focused_panel = FocusedPanel::Sidebar;
                                     select_guide_file(&mut state, 0);
                                 }
+                            } else {
+                                // Nothing to show without --guide: say so instead
+                                // of silently doing nothing.
+                                state.set_status_message("Guide requires --guide flag");
                             }
                         }
                         KeyCode::Char(',') => {

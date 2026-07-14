@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use std::time::SystemTime;
+use std::time::{Instant, SystemTime};
 
 use tree_sitter::{Parser, Tree};
 
@@ -268,7 +268,15 @@ pub struct AppState {
     /// flag wasn't passed, or path resolution failed (e.g. detached HEAD) —
     /// in either case, nothing is persisted.
     pub viewed_state_path: Option<PathBuf>,
+    /// Transient feedback for a keypress that had nothing to do (e.g. `a`
+    /// without `--guide`), paired with when it was set so the main loop can
+    /// clear it after `STATUS_MESSAGE_TTL`. Shown in the footer.
+    pub status_message: Option<(String, Instant)>,
 }
+
+/// How long a `status_message` stays visible in the footer before the main
+/// loop clears it.
+pub const STATUS_MESSAGE_TTL: std::time::Duration = std::time::Duration::from_secs(2);
 
 fn compute_total_line_stats(file_diffs: &[FileDiff]) -> (usize, usize) {
     let mut added = 0usize;
@@ -379,6 +387,7 @@ impl AppState {
             guide_group_selected: 0,
             guide_file_selected: 0,
             viewed_state_path: None,
+            status_message: None,
         }
     }
 
@@ -613,6 +622,23 @@ impl AppState {
             cumulative += gap_height;
         }
         content_y - cumulative
+    }
+
+    /// Set a transient footer message (e.g. feedback for a keypress that had
+    /// nothing to do). Cleared automatically by `expire_status_message` once
+    /// `STATUS_MESSAGE_TTL` has elapsed.
+    pub fn set_status_message(&mut self, message: impl Into<String>) {
+        self.status_message = Some((message.into(), Instant::now()));
+    }
+
+    /// Drop `status_message` once it has been visible for `STATUS_MESSAGE_TTL`.
+    /// Called once per main-loop iteration so the message fades on its own.
+    pub fn expire_status_message(&mut self) {
+        if let Some((_, set_at)) = &self.status_message {
+            if set_at.elapsed() >= STATUS_MESSAGE_TTL {
+                self.status_message = None;
+            }
+        }
     }
 
     /// Clear all selection state
