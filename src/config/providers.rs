@@ -35,7 +35,7 @@ pub const ALL_PROVIDERS: &[ProviderInfo] = &[
         id: "claude",
         provider_type: ProviderType::Claude,
         display_name: "Claude (Anthropic)",
-        default_model: "claude-sonnet-4-5-20250930",
+        default_model: "claude-sonnet-4-5-20250929",
         env_key: "ANTHROPIC_API_KEY",
     },
     ProviderInfo {
@@ -98,3 +98,17 @@ impl ProviderInfo {
             .expect("All provider types must be defined in ALL_PROVIDERS")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn claude_default_model_is_available() {
+        assert_eq!(
+            ProviderInfo::for_provider(ProviderType::Claude).default_model,
+            "claude-sonnet-4-5-20250929"
+        );
+    }
+}
+
